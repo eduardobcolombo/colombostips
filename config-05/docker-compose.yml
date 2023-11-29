@@ -1,0 +1,9 @@
+version: "3.7"
+
+services:
+
+  go_server:
+    build:
+      context: ./docker/Dockerfile.server
+    env_file:
+       ./deploy/server.env

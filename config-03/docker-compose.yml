@@ -1,0 +1,9 @@
+version: "3.7"
+
+services:
+
+  go_config:
+    build:
+      context: .
+    env_file:
+       ./config.env

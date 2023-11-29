@@ -1,0 +1,18 @@
+ARG go=1.20
+FROM golang:$go-alpine AS builder
+
+ENV CGO_ENABLED=0
+
+WORKDIR /src
+COPY . .
+
+RUN go version
+RUN go env
+
+RUN go build -mod=vendor -o=server
+
+FROM scratch AS server
+
+COPY --from=builder /src/server /server
+
+ENTRYPOINT ["/server"]
