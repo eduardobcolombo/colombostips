@@ -1,7 +1,7 @@
 # Config-02
-## Importing configs to a package
+## How to import environment variables into a package.
 
-This config tips shows how to use `envconfig` package from Kelsey Hightower, extended to import configs to a package.
+This config tips shows how to use `conf/v3` package from [ArdanLabs](https://github.com/ardanlabs/conf), extended to import configs to a package.
 
 To run this configuration demo, you will need to set the below environment variables or use the below command to run.
 ```
@@ -17,32 +17,41 @@ LOG_LEVEL=info \
 go run main.go
 ```
 
-In additional we are passing the NewRelic configuration. Notice that we did use `envconfig:"NEW_RELIC"` and point it to `newrelic.Config` which is our newrelic package.
+In additional we are passing the NewRelic configuration. Notice that we did use a local config type to get environment variables and we are passing the values using the `newrelic.Config` type explicit to keep the code easy to understand.
 
 ```go
-type Config struct {
-	Log      myLog.Config  
-	NewRelic newrelic.Config `envconfig:"NEW_RELIC" desc:"NewRelic config"`
-}
+... //main.go
+	cfg := struct {
+		Log struct {
+			Level string `conf:"default:error"`
+		}
+		NewRelic struct {
+			AppName    string `conf:"default:appName"`
+			LicenseKey string `conf:"default:LicenceKey"`
+		}
+	}{}
+...
 ```
 
-In `pkg/log/log.go`, we defined another config struct which is the `myLog.Config` in the main.go
+In `pkg/log/log.go`, we defined another config struct which will be explicit filled in the main.go.
 ```go
-type Config struct {
-	Level string
-}
+... // main.go
+	logLevel := myLog.New(myLog.Config{
+		Level: cfg.Log.Level,
+	})
+...
 ```
 
-In `pkg/newrelic/newrelic.go`, we defined another config struct which is the `newrelic.Config` in the main.go
+In `pkg/newrelic/newrelic.go`, we defined another config struct which will be explicit filled in the main.go. In this case, you are not hidden the configuration, but set it explicitly.
 
 ```go
-type Config struct {
-	AppName    string `split_words:"true" desc:"application name"`
-	LicenseKey string `split_words:"true" desc:"license key"`
-}
+... //main.go
+	_, err = newrelic.New(newrelic.Config{
+		AppName:    cfg.NewRelic.AppName,
+		LicenseKey: cfg.NewRelic.LicenseKey,
+	})
+...
 ```
-
-As we did define the split_words to true, the applicatin will recognize my env variable splitted by underscore, like NEW_RELIC_LICENSE_KEY.
 
 So if you run this app with the above command, the output should be: 
 

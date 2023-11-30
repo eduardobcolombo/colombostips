@@ -7,8 +7,8 @@ import (
 )
 
 type Config struct {
-	AppName    string `split_words:"true" desc:"application name"`
-	LicenseKey string `split_words:"true" desc:"license key"`
+	AppName    string
+	LicenseKey string
 }
 
 func New(cfg Config) (*newrelic.Application, error) {

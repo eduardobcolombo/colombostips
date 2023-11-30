@@ -1,20 +1,15 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
 
+	"github.com/ardanlabs/conf/v3"
 	myLog "github.com/eduardobcolombo/colombostips/config-02/pkg/log"
 	"github.com/eduardobcolombo/colombostips/config-02/pkg/newrelic"
-	"github.com/kelseyhightower/envconfig"
 )
-
-// Config represents a configuration type to receive env variables
-type Config struct {
-	Log      myLog.Config
-	NewRelic newrelic.Config `envconfig:"NEW_RELIC" desc:"NewRelic config"`
-}
 
 func main() {
 	exit, err := run()
@@ -26,18 +21,35 @@ func main() {
 
 func run() (int, error) {
 
-	var cfg Config
+	cfg := struct {
+		Log struct {
+			Level string `conf:"default:error"`
+		}
+		NewRelic struct {
+			AppName    string `conf:"default:appName"`
+			LicenseKey string `conf:"default:LicenceKey"`
+		}
+	}{}
 
-	if err := envconfig.Process("", &cfg); err != nil {
-		_ = envconfig.Usage("", &cfg)
-		log.Fatalf("error processing envconfig %v", err)
-		return 1, err
+	const prefix = ""
+	help, err := conf.Parse(prefix, &cfg)
+	if err != nil {
+		if errors.Is(err, conf.ErrHelpWanted) {
+			fmt.Println(help)
+			return 1, nil
+		}
+		return 1, fmt.Errorf("parsing config: %w", err)
 	}
 
-	logLevel := myLog.New(cfg.Log)
+	logLevel := myLog.New(myLog.Config{
+		Level: cfg.Log.Level,
+	})
 	fmt.Printf("\nUsing Log Level: %s\n\n", logLevel)
 
-	_, err := newrelic.New(cfg.NewRelic)
+	_, err = newrelic.New(newrelic.Config{
+		AppName:    cfg.NewRelic.AppName,
+		LicenseKey: cfg.NewRelic.LicenseKey,
+	})
 	if err != nil {
 		log.Fatal(err)
 		return 1, err
