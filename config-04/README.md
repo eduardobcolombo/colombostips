@@ -1,36 +1,54 @@
 # Config-04
 ## Importing configs to a package using kubernetes and zap for logging
 
-This config tips shows how to use `envconfig` package from Kelsey Hightower, extended to import configs to a package.
+
+This config tip shows how to use the `conf/v3` package from [ArdanLabs](https://github.com/ardanlabs/conf), which is extended to import configs to a package.
 
 To run this configuration demo, you will need to set the below environment variables to the deploy/server.env. Feel free to use the server.env.example.
 
-In additional we are passing the NewRelic configuration. Notice that we did use `envconfig:"NEW_RELIC"` and point it to `newrelic.Config` which is our newrelic package.
+Notice that we used a local config type to get environment variables and are passing the values using the `newrelic.Config` type explicitly to keep the code easy to understand. In addition to that, we are not exposing the main Config, avoiding passing it along to the application.
 
 ```go
-type Config struct {
-	Log      myLog.Config
-	NewRelic newrelic.Config `envconfig:"NEW_RELIC" desc:"NewRelic config"`
-	Port     string          `split_words:"true" default:"8000"`
-}
+... //main.go
+	cfg := struct {
+		Log struct {
+			Level string `conf:"default:error"`
+		}
+		NewRelic struct {
+			AppName    string `conf:"default:appName"`
+			LicenseKey string `conf:"default:LicenceKey"`
+		}
+		Port string `conf:"default:8000"`
+	}{}
+...
 ```
 
-In `pkg/log/log.go`, we defined another config struct which is the `myLog.Config` in the main.go. This pkg will start the zap logger for us and set the correct log level.
+In `pkg/log/log.go`, we defined another config struct which will be explicitly filled in the main.go.
 ```go
-type Config struct {
-	Level string
-}
+... // main.go
+	logCfg := logger.Config{
+		Level: cfg.Log.Level,
+	}
+
+	logger := logger.New(logCfg)
+...
 ```
 
-In `pkg/newrelic/newrelic.go`, we defined another config struct which is the `newrelic.Config` in the main.go
+In `pkg/newrelic/newrelic.go`, we defined another config struct which will be explicitly filled in the main.go. In this case, you are not hiding the configuration but setting it explicitly.
 
 ```go
-type Config struct {
-	AppName    string `split_words:"true" desc:"application name"`
-	LicenseKey string `split_words:"true" desc:"license key"`
-}
-```
+... //main.go
+	nrCfg := newrelic.Config{
+		AppName:    cfg.NewRelic.AppName,
+		LicenseKey: cfg.NewRelic.LicenseKey,
+	}
 
+	nr, err := newrelic.New(nrCfg)
+	if err != nil {
+		return fmt.Errorf("initiating newrelic: %w", err)
+	}
+...
+```
 
 As we are running on top of `k8s` (kubernetes), we need a cluster. In order to make it easy, this repo provides a `make file` with some shortcuts to create your own cluster with `KinD` and some make commands to get the appication up and down.
 Please explore the Makefile.

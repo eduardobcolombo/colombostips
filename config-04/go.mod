@@ -3,7 +3,7 @@ module github.com/eduardobcolombo/colombostips/config-04
 go 1.20
 
 require (
-	github.com/kelseyhightower/envconfig v1.4.0
+	github.com/ardanlabs/conf/v3 v3.1.7
 	github.com/newrelic/go-agent/v3 v3.22.1
 	go.uber.org/zap v1.12.0
 )

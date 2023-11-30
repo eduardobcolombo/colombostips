@@ -1,6 +1,9 @@
 # github.com/BurntSushi/toml v0.3.1
 ## explicit
 github.com/BurntSushi/toml
+# github.com/ardanlabs/conf/v3 v3.1.7
+## explicit; go 1.13
+github.com/ardanlabs/conf/v3
 # github.com/golang/protobuf v1.5.3
 ## explicit; go 1.9
 github.com/golang/protobuf/jsonpb
@@ -9,9 +12,6 @@ github.com/golang/protobuf/ptypes
 github.com/golang/protobuf/ptypes/any
 github.com/golang/protobuf/ptypes/duration
 github.com/golang/protobuf/ptypes/timestamp
-# github.com/kelseyhightower/envconfig v1.4.0
-## explicit
-github.com/kelseyhightower/envconfig
 # github.com/newrelic/go-agent/v3 v3.22.1
 ## explicit; go 1.18
 github.com/newrelic/go-agent/v3/internal

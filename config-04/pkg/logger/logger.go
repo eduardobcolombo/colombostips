@@ -1,4 +1,4 @@
-package log
+package logger
 
 import (
 	"os"
@@ -7,11 +7,18 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+// Config has all needed values to create the Logger.
 type Config struct {
 	Level string
 }
 
-func New(cfg Config) *zap.Logger {
+// Logger has all is needed to use Logger pkg.
+type Logger struct {
+	Log *zap.Logger
+}
+
+// New provides a Logger object as a Factory pattern.
+func New(cfg Config) *Logger {
 
 	zapEncoder := zap.NewProductionEncoderConfig()
 	zapEncoder.TimeKey = "timestamp"
@@ -37,7 +44,9 @@ func New(cfg Config) *zap.Logger {
 		panic(err)
 	}
 
-	return logger
+	return &Logger{
+		Log: logger,
+	}
 }
 
 func logLevel(level string) zap.AtomicLevel {

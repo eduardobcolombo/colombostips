@@ -7,20 +7,36 @@ import (
 	"github.com/newrelic/go-agent/v3/newrelic"
 )
 
+// Config has all the needed values to create the NewRelic.
 type Config struct {
-	AppName    string `split_words:"true" desc:"application name"`
-	LicenseKey string `split_words:"true" desc:"license key"`
+	AppName    string
+	LicenseKey string
 }
 
-func New(cfg Config) (*newrelic.Application, error) {
+// NewRelic has all that is needed to use NewRelic pkg.
+type NewRelic struct {
+	App *newrelic.Application
+}
 
-	fmt.Printf("Using NewRelic \nAppName: %s\nLicenseKey: %s \n\n", cfg.AppName, "REDACTED")
+// New provides a NewRelic object as a Factory pattern.
+func New(cfg Config) (NewRelic, error) {
 
-	return newrelic.NewApplication(
+	// hack for this demo
+	fmt.Printf("Using NewRelic \nAppName: %s\nLicenseKey: %s \n\n", cfg.AppName,
+		"REDACTED")
+
+	nrApp, err := newrelic.NewApplication(
 		newrelic.ConfigAppName(cfg.AppName),
 		newrelic.ConfigLicense(cfg.LicenseKey),
-		newrelic.ConfigAppLogForwardingEnabled(true),
 	)
+
+	if err != nil {
+		return NewRelic{}, err
+	}
+
+	return NewRelic{
+		App: nrApp,
+	}, nil
 }
 
 func WrapHandleFunc(app *newrelic.Application, pattern string, handler func(http.ResponseWriter, *http.Request), options ...newrelic.TraceOption) (string, func(http.ResponseWriter, *http.Request)) {
