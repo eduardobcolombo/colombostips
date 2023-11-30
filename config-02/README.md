@@ -12,7 +12,8 @@ LOG_LEVEL=info \
 go run main.go
 ```
 
-In addition, we are passing the NewRelic configuration. Notice that we used a local config type to get environment variables and are passing the values using the `newrelic.Config` type explicitly to keep the code easy to understand. In addition to that, we are not exposing the main Config, avoiding passing it along to the application.
+
+Notice that we used a local config type to get environment variables and are passing the values using the `newrelic.Config` type explicitly to keep the code easy to understand. In addition to that, we are not exposing the main Config, avoiding passing it along to the application.
 
 ```go
 ... //main.go

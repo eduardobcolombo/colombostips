@@ -2,13 +2,14 @@
 
 ## Importing configs to a package using docker with prefix
 
-This config tips shows how to use `envconfig` package from Kelsey Hightower, extended to import configs to a package.
+This config tip shows how to use the `conf/v3` package from [ArdanLabs](https://github.com/ardanlabs/conf), which is extended to import configs to a package.
 
-To run this configuration demo, you will need to set the below environment variables within the config.env file.
+To run this configuration demo, you must set the environment variables in the `config.env` file, feel free to copy `config.env.example`. The content should looks like the below.
+
 ```
 COLOMBOSTIPS_NEW_RELIC_LICENSE_KEY=some_valid_licence_key
 COLOMBOSTIPS_NEW_RELIC_APP_NAME=colombostips
-COLOMBOSTIPS_LOG_LEVEL=info
+COLOMBOSTIPS_LOG_LEVEL=error
 ```
 
 Note that we are using the prefix `COLOMBOSTIPS` for all env variables.
@@ -21,32 +22,52 @@ docker compose up -d --build
 docker compose logs
 ```
 
-As we did define the split_words to true, the applicatin will recognize my env variable splitted by underscore, like LOG_LEVEL.
-
-In additional we are passing the NewRelic configuration. Notice that we did use `envconfig:"NEW_RELIC"` and point it to `newrelic.Config` which is our newrelic package.
+Notice that we used a local config type to get environment variables and are passing the values using the `newrelic.Config` type explicitly to keep the code easy to understand. In addition to that, we are not exposing the main Config, avoiding passing it along to the application.
 
 ```go
-type Config struct {
-	Log      myLog.Config
-	NewRelic newrelic.Config `envconfig:"NEW_RELIC" desc:"NewRelic config"`
-}
-
+... //main.go
+	cfg := struct {
+		Log struct {
+			Level string `conf:"default:error"`
+		}
+		NewRelic struct {
+			AppName    string `conf:"default:appName"`
+			LicenseKey string `conf:"default:LicenceKey"`
+		}
+	}{}
+...
 ```
-In `pkg/log/log.go`, we defined another config struct which is the `myLog.Config` in the main.go
+
+In `pkg/log/log.go`, we defined another config struct which will be explicitly filled in the main.go.
 ```go
-type Config struct {
-	Level string
-}
+... // main.go
+	logCfg := logger.Config{
+		Level: cfg.Log.Level,
+	}
+
+	logger := logger.New(logCfg)
+...
 ```
 
-In `pkg/newrelic/newrelic.go`, we defined another config struct which is the `newrelic.Config` in the main.go
+In `pkg/newrelic/newrelic.go`, we defined another config struct which will be explicitly filled in the main.go. In this case, you are not hiding the configuration but setting it explicitly.
 
 ```go
-type Config struct {
-	AppName    string `split_words:"true" desc:"application name"`
-	LicenseKey string `split_words:"true" desc:"license key"`
-}
+... //main.go
+	nrCfg := newrelic.Config{
+		AppName:    cfg.NewRelic.AppName,
+		LicenseKey: cfg.NewRelic.LicenseKey,
+	}
+
+	// skipping the newrelic return for this demo
+	if _, err = newrelic.New(nrCfg); err != nil {
+		return err
+	}
+...
 ```
+
+You can see that it is printing the environment variable set.
+
+Note: Once this app only prints a output and did not hang like a http webserver, the docker container will stop right after.
 
 So if you run this app with the above command, the output should be: 
 
@@ -65,3 +86,9 @@ config-03-go_config-1 exited with code 0
 You can see that it is printing the environment variable set.
 
 Note: Once this app only prints a output and did not hang like a http webserver, the docker container will stop right after.
+
+
+# References:
+
+https://github.com/ardanlabs/conf
+
