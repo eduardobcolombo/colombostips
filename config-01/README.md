@@ -1,12 +1,12 @@
 # Config-01
 
-This config tips shows how to use `envconfig` package from Kelsey Hightower.
+This config tip shows how to use `envconfig` package from Kelsey Hightower.
 
 To run this configuration demo, you will need to set an environment variable or use the below command to run.
 
 `LOG_LEVEL=info go run main.go`
 
-As we did define the split_words to true, the applicatin will recognize the env variable splitted by underscore, like LOG_LEVEL.
+As we did define the split_words to true, the application will recognize the env variable split by underscore, like LOG_LEVEL.
 
 ```go
 type Config struct {
@@ -14,7 +14,7 @@ type Config struct {
 }
 ```
 
-Look that we set the default value for this variable to `debug` and in the running it is set as `info`
+Look that we set the default value for this variable to `debug` and in the running, it is set as `info`
 
 So if you run this app with the above command, the output should be: 
 

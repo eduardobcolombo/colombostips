@@ -4,23 +4,19 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/ardanlabs/conf/v3"
-	myLog "github.com/eduardobcolombo/colombostips/config-02/pkg/log"
+	"github.com/eduardobcolombo/colombostips/config-02/pkg/logger"
 	"github.com/eduardobcolombo/colombostips/config-02/pkg/newrelic"
 )
 
 func main() {
-	exit, err := run()
-	if err != nil {
+	if err := run(); err != nil {
 		log.Fatal(err)
 	}
-	os.Exit(exit)
 }
 
-func run() (int, error) {
-
+func run() error {
 	cfg := struct {
 		Log struct {
 			Level string `conf:"default:error"`
@@ -36,24 +32,27 @@ func run() (int, error) {
 	if err != nil {
 		if errors.Is(err, conf.ErrHelpWanted) {
 			fmt.Println(help)
-			return 1, nil
+			return nil
 		}
-		return 1, fmt.Errorf("parsing config: %w", err)
+		return fmt.Errorf("parsing config: %w", err)
 	}
 
-	logLevel := myLog.New(myLog.Config{
+	logCfg := logger.Config{
 		Level: cfg.Log.Level,
-	})
-	fmt.Printf("\nUsing Log Level: %s\n\n", logLevel)
+	}
 
-	_, err = newrelic.New(newrelic.Config{
+	logger := logger.New(logCfg)
+	fmt.Printf("\nUsing Log Level: %s\n\n", logger.Level)
+
+	nrCfg := newrelic.Config{
 		AppName:    cfg.NewRelic.AppName,
 		LicenseKey: cfg.NewRelic.LicenseKey,
-	})
-	if err != nil {
-		log.Fatal(err)
-		return 1, err
 	}
 
-	return 0, nil
+	// skipping the newrelic return for this demo
+	if _, err = newrelic.New(nrCfg); err != nil {
+		return err
+	}
+
+	return nil
 }

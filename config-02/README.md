@@ -1,15 +1,10 @@
 # Config-02
 ## How to import environment variables into a package.
 
-This config tips shows how to use `conf/v3` package from [ArdanLabs](https://github.com/ardanlabs/conf), extended to import configs to a package.
+This config tip shows how to use the `conf/v3` package from [ArdanLabs](https://github.com/ardanlabs/conf), which is extended to import configs to a package.
 
-To run this configuration demo, you will need to set the below environment variables or use the below command to run.
-```
-NEW_RELIC_LICENSE_KEY=some_valid_licence_key
-NEW_RELIC_APP_NAME=colombostips
-LOG_LEVEL=info
-```
- 
+To run this configuration demo, you must set the environment variables below or use the below command to run.
+
 ```
 NEW_RELIC_LICENSE_KEY=some_valid_licence_key \
 NEW_RELIC_APP_NAME=colombostips \
@@ -17,7 +12,7 @@ LOG_LEVEL=info \
 go run main.go
 ```
 
-In additional we are passing the NewRelic configuration. Notice that we did use a local config type to get environment variables and we are passing the values using the `newrelic.Config` type explicit to keep the code easy to understand.
+In addition, we are passing the NewRelic configuration. Notice that we used a local config type to get environment variables and are passing the values using the `newrelic.Config` type explicitly to keep the code easy to understand. In addition to that, we are not exposing the main Config, avoiding passing it along to the application.
 
 ```go
 ... //main.go
@@ -33,23 +28,30 @@ In additional we are passing the NewRelic configuration. Notice that we did use 
 ...
 ```
 
-In `pkg/log/log.go`, we defined another config struct which will be explicit filled in the main.go.
+In `pkg/log/log.go`, we defined another config struct which will be explicitly filled in the main.go.
 ```go
 ... // main.go
-	logLevel := myLog.New(myLog.Config{
+	logCfg := logger.Config{
 		Level: cfg.Log.Level,
-	})
+	}
+
+	logger := logger.New(logCfg)
 ...
 ```
 
-In `pkg/newrelic/newrelic.go`, we defined another config struct which will be explicit filled in the main.go. In this case, you are not hidden the configuration, but set it explicitly.
+In `pkg/newrelic/newrelic.go`, we defined another config struct which will be explicitly filled in the main.go. In this case, you are not hiding the configuration but setting it explicitly.
 
 ```go
 ... //main.go
-	_, err = newrelic.New(newrelic.Config{
+	nrCfg := newrelic.Config{
 		AppName:    cfg.NewRelic.AppName,
 		LicenseKey: cfg.NewRelic.LicenseKey,
-	})
+	}
+
+	// skipping the newrelic return for this demo
+	if _, err = newrelic.New(nrCfg); err != nil {
+		return err
+	}
 ...
 ```
 
@@ -66,3 +68,6 @@ LicenseKey: REDACTED
 
 But you can see that it is printing the environment variable set.
 
+# References:
+
+https://github.com/ardanlabs/conf
