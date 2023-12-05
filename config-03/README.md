@@ -26,7 +26,7 @@ Notice that we used a local config type to get environment variables and are pas
 
 ```go
 ... //main.go
-	cfg := struct {
+	var cfg = struct {
 		Log struct {
 			Level string `conf:"default:error"`
 		}
@@ -41,7 +41,7 @@ Notice that we used a local config type to get environment variables and are pas
 In `pkg/log/log.go`, we defined another config struct which will be explicitly filled in the main.go.
 ```go
 ... // main.go
-	logCfg := logger.Config{
+	var logCfg = logger.Config{
 		Level: cfg.Log.Level,
 	}
 
@@ -53,14 +53,14 @@ In `pkg/newrelic/newrelic.go`, we defined another config struct which will be ex
 
 ```go
 ... //main.go
-	nrCfg := newrelic.Config{
+	var nrCfg = newrelic.Config{
 		AppName:    cfg.NewRelic.AppName,
 		LicenseKey: cfg.NewRelic.LicenseKey,
 	}
 
 	// skipping the newrelic return for this demo
 	if _, err = newrelic.New(nrCfg); err != nil {
-		return err
+		return fmt.Errorf("starting newrelic: %w", err)
 	}
 ...
 ```
@@ -73,13 +73,11 @@ So if you run this app with the above command, the output should be:
 
 ```
 config-03-go_config-1  | Using Log Level: info
-config-03-go_config-1  | 
 config-03-go_config-1  | Using NewRelic 
 config-03-go_config-1  | AppName: colombostips
 config-03-go_config-1  | LicenseKey: REDACTED
 config-03-go_config-1  | 
-config-03-go_config-1  | 
-config-03-go_config-1 exited with code 0
+config-03-go_config-1  | 2023/12/05 13:07:07 starting newrelic: license length is not 40
 
 ```
 
