@@ -10,7 +10,8 @@ The application will recognize the env variable split by underscore, like LOG_LE
 In addition to that, we are not exposing the main Config, avoiding passing it along to the application.
 
 ```go
-	cfg := struct {
+	// cfg variable with zero value construction
+	var cfg = struct {
 		LogLevel string `split_words:"true" default:"debug"`
 	}{}
 ```

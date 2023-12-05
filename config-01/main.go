@@ -9,21 +9,25 @@ import (
 
 func main() {
 	if err := run(); err != nil {
+		// Fatal will always call os.Exit(1).
 		log.Fatal(err)
 	}
 }
 
 func run() error {
-	cfg := struct {
+	// cfg variable with zero value construction.
+	var cfg = struct {
 		LogLevel string `split_words:"true" default:"debug"`
 	}{}
 
+	// load env variables with envconfig.
 	if err := envconfig.Process("", &cfg); err != nil {
-		log.Fatalf("error processing envconfig %v", err)
-		return err
+		// returning wrapped error for better context.
+		return fmt.Errorf("loading env config: %w", err)
 	}
 
-	fmt.Printf("LogLevel: %s\n", cfg.LogLevel)
+	// Print out the log level from env variable.
+	fmt.Println("LogLevel: ", cfg.LogLevel)
 
 	return nil
 }
