@@ -41,14 +41,14 @@ func run() error {
 		return fmt.Errorf("parsing config: %w", err)
 	}
 
-	var logCfg = logger.Config{
+	logCfg := logger.Config{
 		Level: cfg.Log.Level,
 	}
 
 	logger := logger.New(logCfg)
 	fmt.Println("Using Log Level:", logger.Level)
 
-	var nrCfg = newrelic.Config{
+	nrCfg := newrelic.Config{
 		AppName:    cfg.NewRelic.AppName,
 		LicenseKey: cfg.NewRelic.LicenseKey,
 	}

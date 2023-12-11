@@ -10,7 +10,7 @@ Notice that we used a local config type to get environment variables and are pas
 
 ```go
 ... //main.go
-	cfg := struct {
+	var cfg = struct {
 		Log struct {
 			Level string `conf:"default:error"`
 		}

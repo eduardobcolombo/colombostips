@@ -22,7 +22,7 @@ func main() {
 }
 
 func run() error {
-	cfg := struct {
+	var cfg = struct {
 		Log struct {
 			Level string `conf:"default:error"`
 		}

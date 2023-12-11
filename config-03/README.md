@@ -41,7 +41,7 @@ Notice that we used a local config type to get environment variables and are pas
 In `pkg/log/log.go`, we defined another config struct which will be explicitly filled in the main.go.
 ```go
 ... // main.go
-	var logCfg = logger.Config{
+	logCfg := logger.Config{
 		Level: cfg.Log.Level,
 	}
 
@@ -53,7 +53,7 @@ In `pkg/newrelic/newrelic.go`, we defined another config struct which will be ex
 
 ```go
 ... //main.go
-	var nrCfg = newrelic.Config{
+	nrCfg := newrelic.Config{
 		AppName:    cfg.NewRelic.AppName,
 		LicenseKey: cfg.NewRelic.LicenseKey,
 	}
