@@ -7,8 +7,9 @@ import (
 	"net/http"
 
 	"github.com/ardanlabs/conf/v3"
-	"github.com/eduardobcolombo/colombostips/config-04/pkg/logger"
-	"github.com/eduardobcolombo/colombostips/config-04/pkg/newrelic"
+	"github.com/eduardobcolombo/colombostips/config-04/logger"
+	mynewrelic "github.com/eduardobcolombo/colombostips/config-04/newrelic"
+	"github.com/newrelic/go-agent/v3/newrelic"
 )
 
 type App struct {
@@ -50,19 +51,19 @@ func run() error {
 	logger := logger.New(logCfg)
 	defer logger.Log.Sync()
 
-	nrCfg := newrelic.Config{
+	nrCfg := mynewrelic.Config{
 		AppName:    cfg.NewRelic.AppName,
 		LicenseKey: cfg.NewRelic.LicenseKey,
 	}
 
-	nr, err := newrelic.New(nrCfg)
+	nr, err := mynewrelic.New(nrCfg)
 	if err != nil {
 		return fmt.Errorf("initiating newrelic: %w", err)
 	}
 
 	app := App{Logger: logger}
 
-	txn := newrelic.StartTransaction(nr.App, "Example transaction")
+	txn := nr.App.StartTransaction("Example transaction")
 	defer txn.End()
 
 	txn.AddAttribute("traceID", txn.GetTraceMetadata().TraceID)

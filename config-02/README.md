@@ -9,7 +9,7 @@ To run this configuration demo, you must set the environment variables below or 
 NEW_RELIC_LICENSE_KEY=some_valid_licence_key \
 NEW_RELIC_APP_NAME=colombostips \
 LOG_LEVEL=info \
-go run main.go
+go run app/example/main.go
 ```
 
 
@@ -17,7 +17,7 @@ Notice that we used a local config type to get environment variables and are pas
 
 ```go
 ... //main.go
-	var cfg = struct {
+	var cfg struct {
 		Log struct {
 			Level string `conf:"default:error"`
 		}
@@ -25,11 +25,15 @@ Notice that we used a local config type to get environment variables and are pas
 			AppName    string `conf:"default:appName"`
 			LicenseKey string `conf:"default:LicenceKey"`
 		}
-	}{}
+	}
 ...
 ```
 
-In `pkg/log/log.go`, we defined another config struct which will be explicitly filled in the main.go.
+## /foundation
+
+In this section we are going to start to use the foundation folder to save the packages for loggin and metrics, since it does not belongs to the business layer.
+
+In `foundation/log/log.go`, we defined another config struct which will be explicitly filled in the main.go.
 ```go
 ... // main.go
 	logCfg := logger.Config{
@@ -40,7 +44,7 @@ In `pkg/log/log.go`, we defined another config struct which will be explicitly f
 ...
 ```
 
-In `pkg/newrelic/newrelic.go`, we defined another config struct which will be explicitly filled in the main.go. In this case, you are not hiding the configuration but setting it explicitly.
+In `foundation/newrelic/newrelic.go`, we defined another config struct which will be explicitly filled in the main.go. In this case, you are not hiding the configuration but setting it explicitly.
 
 ```go
 ... //main.go

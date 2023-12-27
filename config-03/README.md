@@ -4,7 +4,9 @@
 
 This config tip shows how to use the `conf/v3` package from [ArdanLabs](https://github.com/ardanlabs/conf), which is extended to import configs to a package.
 
-To run this configuration demo, you must set the environment variables in the `config.env` file, feel free to copy `config.env.example`. The content should looks like the below.
+To run this configuration demo, you must set the environment variables in the `config.env` file, feel free to copy `config.env.example`. The content should looks like the below. 
+
+_The config.env file shouldn't live in the repo._
 
 ```
 COLOMBOSTIPS_NEW_RELIC_LICENSE_KEY=some_valid_licence_key
@@ -14,10 +16,17 @@ COLOMBOSTIPS_LOG_LEVEL=error
 
 Note that we are using the prefix `COLOMBOSTIPS` for all env variables.
  
-The run the docker commands to spin up the application.
+## /zarf
+_A zarf is a holder, usually of ornamental metal, for a coffee cup without a handle._ 
+
+We are going to use this folder to store all the container configuration.
+
+To spin up a container with the example app you can use the below command:
 
 ```
-docker compose up -d --build
+docker compose \
+-f zarf/docker-compose.yml \
+up -d --build
 
 docker compose logs
 ```
@@ -26,7 +35,7 @@ Notice that we used a local config type to get environment variables and are pas
 
 ```go
 ... //main.go
-	var cfg = struct {
+	var cfg struct {
 		Log struct {
 			Level string `conf:"default:error"`
 		}
@@ -34,11 +43,11 @@ Notice that we used a local config type to get environment variables and are pas
 			AppName    string `conf:"default:appName"`
 			LicenseKey string `conf:"default:LicenceKey"`
 		}
-	}{}
+	}
 ...
 ```
 
-In `pkg/log/log.go`, we defined another config struct which will be explicitly filled in the main.go.
+In `foundation/log/log.go`, we defined another config struct which will be explicitly filled in the main.go.
 ```go
 ... // main.go
 	logCfg := logger.Config{
@@ -49,7 +58,7 @@ In `pkg/log/log.go`, we defined another config struct which will be explicitly f
 ...
 ```
 
-In `pkg/newrelic/newrelic.go`, we defined another config struct which will be explicitly filled in the main.go. In this case, you are not hiding the configuration but setting it explicitly.
+In `foundation/newrelic/newrelic.go`, we defined another config struct which will be explicitly filled in the main.go. In this case, you are not hiding the configuration but setting it explicitly.
 
 ```go
 ... //main.go
@@ -85,8 +94,8 @@ You can see that it is printing the environment variable set.
 
 Note: Once this app only prints a output and did not hang like a http webserver, the docker container will stop right after.
 
-
 # References:
 
 https://github.com/ardanlabs/conf
+https://en.wikipedia.org/wiki/Zarf
 
